@@ -7,14 +7,12 @@ public class Character_Controller : MonoBehaviour
     public float floMoveSpeed = 5;
     public Transform tranMovePoint;
     public Transform tranDirectionIndicator;
-    public Transform tranHookShot;
     public LayerMask mskCollide;
     public bool bolCanMove = true;
-    private int intLastDir = 2;
 
     public float floHookLength = 8f;
-    private RaycastHit2D hit;
     public GameObject Hook;
+    public bool bolCanFire = true;
 
 
     void Start()
@@ -29,11 +27,9 @@ public class Character_Controller : MonoBehaviour
             CheckLastDirection();
         }
 
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && bolCanMove == true)
         {
-            //for raycast hookshot
-            //Hookshot();
-            Instantiate(Hook, tranDirectionIndicator.position, tranDirectionIndicator.rotation);
+            Hookshot();
         }
 
         float movementAmount = floMoveSpeed * Time.deltaTime;
@@ -61,13 +57,6 @@ public class Character_Controller : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Hook") && bolCanMove == true)
-        {
-            bolCanMove = false;
-        }
-    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Hook") && bolCanMove == false)
@@ -78,50 +67,30 @@ public class Character_Controller : MonoBehaviour
 
     private void CheckLastDirection()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetAxisRaw("Horizontal") < 0)
         {
-            intLastDir = 1;
             tranDirectionIndicator.position = new Vector3(-0.5f, 0f, 0f) + transform.position;
             tranDirectionIndicator.eulerAngles = new Vector3(0f, 0f, 180f);
         }
-        else if (Input.GetKeyDown(KeyCode.D))
+        else if (Input.GetAxisRaw("Horizontal") > 0)
         {
-            intLastDir = 2;
             tranDirectionIndicator.position = new Vector3(0.5f, 0f, 0f) + transform.position;
             tranDirectionIndicator.eulerAngles = new Vector3(0f, 0f, 0f);
         }
-        else if (Input.GetKeyDown(KeyCode.W))
+        else if (Input.GetAxisRaw("Vertical") > 0)
         {
-            intLastDir = 3;
             tranDirectionIndicator.position = new Vector3(0f, 0.5f, 0f) + transform.position;
             tranDirectionIndicator.eulerAngles = new Vector3(0f, 0f, 90f);
         }
-        else if (Input.GetKeyDown(KeyCode.S))
+        else if (Input.GetAxisRaw("Vertical") < 0)
         {
-            intLastDir = 4;
             tranDirectionIndicator.position = new Vector3(0f, -0.5f, 0f) + transform.position;
             tranDirectionIndicator.eulerAngles = new Vector3(0f, 0f, 270f);
         }
     }
-
-    //Raycast hookshot
-    //private void Hookshot()
-    //{
-    //    if (intLastDir == 1 || intLastDir == 2)
-    //    {
-    //        hit = Physics2D.Raycast(transform.position, tranDirectionIndicator.right, floHookLength, mskCollide);
-    //    }
-    //    else
-    //    {
-    //        hit = Physics2D.Raycast(transform.position, tranDirectionIndicator.up, floHookLength, mskCollide);
-    //    }
-
-    //    if(hit.collider)
-    //    {
-    //        Debug.Log("hit wall");
-    //        Vector3 point = hit.point;
-    //        transform.position = Vector3.MoveTowards(transform.position, point, floMoveSpeed * Time.deltaTime);
-    //        tranHookShot.position = point;
-    //    }
-    //}
+    private void Hookshot()
+    {
+        bolCanMove = false;
+        Instantiate(Hook, tranDirectionIndicator.position, tranDirectionIndicator.rotation);
+    }
 }
